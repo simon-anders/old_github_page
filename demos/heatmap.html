@@ -1,0 +1,75 @@
+<head>
+
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="d3.v4.min.js"></script>
+<script src = "d3-scale-chromatic.v1.min.js"></script>
+<script src = "d3-color.v1.min.js"></script>
+<script src = "simpleTable.js"></script>
+
+<script src="d3-linked-charts.min.js"></script>
+<script src="input.js"></script>
+
+</head>
+
+<body>
+
+<table><tr>
+  <td id="heatmap"></td>
+  <td valign="top"> 
+     <p id="scatterplot"></p>
+     <p><a href="http://www.genecards.org/" id="genecardlink">GeneCard</a></p>
+     <p id="info"></p>
+  </td>
+</tr></table>
+
+<script>
+
+var geneSel = 0
+var drugSel = 0
+var sampleSel = 0
+
+var heatmap = d3.heatmapChart()
+  .nrows( lfc.length )
+  .ncols( lfc[0].length )
+  .height( 2000 )
+  .width( 400 )
+  .colourRange( [ -0.5, 0.5 ] )
+  .palette( d3.interpolateRdBu )
+  .rowLabels( function(row) { return genes[row] } )
+  .colLabels( function(col) { return drugs[col] } )
+  .value( function( row, col ) {  return lfc[row][col] } )
+  .cellClick( heatmap_click )
+  .place("#heatmap");
+
+var scatterplot = d3.scatterChart()
+  .numPoints( exprs[0].length )
+  .x( function( k ) { return exprs[geneSel][k] } )
+  .y( function( k ) { return dss[drugSel][k] } )
+  .x_label( function() { return genes[geneSel] } )
+  .y_label( function() { return drugs[drugSel] } )
+  .on_click( scatter_click )
+  .place("#scatterplot");
+
+var infoTable = d3.simpleTable()
+  .record( function() { return smplInfo[sampleSel] } )
+  .place("#info");
+
+
+function heatmap_click( d ) {
+   geneSel = d[0]
+   drugSel = d[1]
+   scatterplot.update()
+   d3.select("#genecardlink")
+     .attr( "href", "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + genes[geneSel] )
+     .text( "GeneCard for " + genes[geneSel] )
+}
+
+function scatter_click( d ) {
+   sampleSel = d
+   infoTable.update()
+}
+
+
+</script>
+
+</body>
